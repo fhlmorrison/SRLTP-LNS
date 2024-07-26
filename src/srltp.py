@@ -12,6 +12,8 @@ c = {(i, j): 1 for i in V_0 for j in V_0}  # Cost matrix (example values)
 p = {i: 1 for i in V}  # Profit or loss per unit at location i
 q = {i: 5 for i in V_0}  # Quantity balance at location i
 
+F = 5  # Fixed cost per vehicle
+
 M = 1000  # Big M value
 
 # Create a new model
@@ -28,7 +30,7 @@ s = model.addVars(V_0, vtype=GRB.CONTINUOUS, name="s")# Time when leaving node i
 t = model.addVars(V_0, V_0, vtype=GRB.BINARY, name="t")  # Time spent between nodes i and j
 
 # Objective function (1)
-model.setObjective(quicksum(p[i] * y[i] for i in V) - quicksum(c[i, j] * x[i, j] for i in V for j in V), GRB.MAXIMIZE)
+model.setObjective(quicksum(p[i] * y[i] for i in V) - quicksum(c[i, j] * x[i, j] for i in V for j in V) - F * z_all, GRB.MAXIMIZE)
 
 # Constraints
 
