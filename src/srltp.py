@@ -77,12 +77,13 @@ c = {
     (7, 6): 28.89,
     (7, 7): 0,
 }
-p = {1: 156, 2: 102, 3: 219, 4: 100, 5: 91, 6: 200, 7: 91}
+# p = {1: 156, 2: 102, 3: 219, 4: 100, 5: 91, 6: 200, 7: 91}
+p = {1: 440, 2: 440, 3: 440, 4: 440, 5: 440, 6: 440, 7: 440}
 q = {i: 0 for i in V_0}
 for i in V_plus:
-    q[i] = random.randint(1, 12)
+    q[i] = random.randint(1, 20)
 for i in V_minus:
-    q[i] = -random.randint(1, 12)
+    q[i] = -random.randint(1, 20)
 
 F = 400  # Fixed cost per vehicle
 
