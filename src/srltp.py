@@ -99,7 +99,7 @@ for i in V_plus:
 for i in V_minus:
     q[i] = -random.randint(1, 20)
 
-p = {i: v*q[i] for i, v in p_bar.items()}
+p = {i: v * q[i] for i, v in p_bar.items()}
 
 F = 400  # Fixed cost per vehicle
 
