@@ -1,9 +1,9 @@
-from gurobipy import Model, GRB, quicksum
+from gurobipy import Model, GRB, quicksum, Env
 import sys
 import random
 import numpy as np
 import os
-from dotenv import load_dotenv, Env
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -48,7 +48,35 @@ distances = {
     (4, 7): 27,
     (5, 6): 8.1,
     (5, 7): 22.6,
-    (6, 7): 18
+    (6, 7): 18,
+    (1, 0): 5.8,
+    (2, 0): 20,
+    (3, 0): 20.4,
+    (4, 0): 18.7,
+    (5, 0): 15.3,
+    (6, 0): 6.3,
+    (7, 0): 13.6,
+    (2, 1): 19.5,
+    (3, 1): 19.9,
+    (4, 1): 20.9,
+    (5, 1): 18.6,
+    (6, 1): 14.4,
+    (7, 1): 10.9,
+    (3, 2): 5.1,
+    (4, 2): 14.3,
+    (5, 2): 26.3,
+    (6, 2): 19.9,
+    (7, 2): 28.5,
+    (4, 3): 13.9,
+    (5, 3): 25.9,
+    (6, 3): 25.2,
+    (7, 3): 28.1,
+    (5, 4): 20.9,
+    (6, 4): 24.2,
+    (7, 4): 27,
+    (6, 5): 8.1,
+    (7, 5): 22.6,
+    (7, 6): 18
 }
 
 V = [1, 2, 3, 4, 5, 6, 7]
@@ -168,6 +196,7 @@ xi = model.addVars(V_0, V_0, vtype=GRB.CONTINUOUS, name="xi")  # Portion of quan
 # Objective function (18)
 model.setObjective(
     quicksum(p[i] * y[i] for i in V)
+    + quicksum(d[i, j] * xi[i, j] for i in V for j in V if i != j)
     - quicksum(c[i, j] * x[i, j] for i in V for j in V)
     - F * z_all,
     GRB.MAXIMIZE,
