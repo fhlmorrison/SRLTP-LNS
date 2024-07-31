@@ -3,7 +3,7 @@ import sys
 import random
 import numpy as np
 import os
-from dotenv import load_dotenv, Env
+from dotenv import load_dotenv
 
 load_dotenv()
 

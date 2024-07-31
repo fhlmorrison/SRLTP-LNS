@@ -1,9 +1,9 @@
-from gurobipy import Model, GRB, quicksum
+from gurobipy import Model, GRB, quicksum, Env
 import sys
 import random
 import numpy as np
 import os
-from dotenv import load_dotenv, Env
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -99,7 +99,7 @@ for i in V_plus:
 for i in V_minus:
     q[i] = -random.randint(1, 20)
 
-p = {i: v*q[i] for i, v in p_bar.items()}
+p = {i: v * q[i] for i, v in p_bar.items()}
 
 F = 400  # Fixed cost per vehicle
 
