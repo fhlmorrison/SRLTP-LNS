@@ -159,7 +159,7 @@ for i in V_plus:
 for i in V_minus:
     q[i] = -random.randint(1, 12)
 
-p = {i: v * q[i] for i, v in p_bar.items()}
+p = {i: v * -q[i] for i, v in p_bar.items()}
 
 F = 400  # Fixed cost per vehicle
 
@@ -291,7 +291,8 @@ model.optimize()
 if model.status == GRB.OPTIMAL:
     print("Optimal objective value:", model.ObjVal)
     for v in model.getVars():
-        if v.x > 0:
-            print(f"{v.varName}: {v.x}")
+        print(f"{v.varName}: {v.x}")
+        # if v.x != 0:
+        #     print(f"{v.varName}: {v.x}")
 else:
     print("No optimal solution found.")
