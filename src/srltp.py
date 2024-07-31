@@ -3,6 +3,17 @@ import sys
 import random
 import numpy as np
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
+params = {
+    "WLSACCESSID": os.getenv("WLSACCESSID"),
+    "WLSSECRET": os.getenv("WLSSECRET"),
+    "LICENSEID": int(os.getenv("LICENSEID")),
+}
+env = Env(params=params)
+
 
 # For consistency, set the seed for the random number generator
 random.seed(42)
@@ -95,7 +106,7 @@ F = 400  # Fixed cost per vehicle
 M = sys.maxsize  # Big M value
 
 # Create a new model
-model = Model("SRLTP")
+model = Model("SRLTP", env=env)
 
 
 # Decision variables
