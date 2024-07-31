@@ -1,5 +1,60 @@
 from gurobipy import Model, GRB, quicksum
 
+import random
+
+
+distances = {
+    (0, 1): 5.8,
+    (0, 2): 20,
+    (0, 3): 20.4,
+    (0, 4): 18.7,
+    (0, 5): 15.3,
+    (0, 6): 6.3,
+    (0, 7): 13.6,
+    (1, 2): 19.5,
+    (1, 3): 19.9,
+    (1, 4): 20.9,
+    (1, 5): 18.6,
+    (1, 6): 14.4,
+    (1, 7): 10.9,
+    (2, 3): 5.1,
+    (2, 4): 14.3,
+    (2, 5): 26.3,
+    (2, 6): 19.9,
+    (2, 7): 28.5,
+    (3, 4): 13.9,
+    (3, 5): 25.9,
+    (3, 6): 25.2,
+    (3, 7): 28.1,
+    (4, 5): 20.9,
+    (4, 6): 24.2,
+    (4, 7): 27,
+    (5, 6): 8.1,
+    (5, 7): 22.6,
+    (6, 7): 18
+}
+
+COST_PER_KM = 1.605
+
+V = [1, 2, 3, 4, 5, 6, 7]
+V_0 = [0] + V  # List of nodes including the depot
+
+V_plus = [1, 5, 6]  # List of surplus nodes
+V_minus = [2, 3, 4, 7]  # List of deficit nodes
+Q_max = 44  # Vehicle capacity
+T_max = 8400  # Maximum tour duration
+p = {1: 156, 2: 102, 3: 219, 4: 100, 5: 91, 6: 200, 7: 91}
+q = {i: 0 for i in V_0}
+for i in V_plus:
+    q[i] = random.randint(1, 12)
+for i in V_minus:
+    q[i] = -random.randint(1, 12)
+
+edge_costs = {x: y*COST_PER_KM for x, y in distances.items()}
+
+def heuiristic(node, ):
+    
+    return
 
 # Code translated from the original pseudocode in the paper
 
