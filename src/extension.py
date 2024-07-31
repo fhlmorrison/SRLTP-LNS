@@ -1,4 +1,4 @@
-from gurobipy import Model, GRB, quicksum
+from gurobipy import Model, GRB, quicksum, Env
 import sys
 import random
 import numpy as np
@@ -48,7 +48,7 @@ distances = {
     (4, 7): 27,
     (5, 6): 8.1,
     (5, 7): 22.6,
-    (6, 7): 18
+    (6, 7): 18,
 }
 
 V = [1, 2, 3, 4, 5, 6, 7]
@@ -124,14 +124,14 @@ c = {
     (7, 6): 28.89,
     (7, 7): 0,
 }
-p_bar = {1: 156, 2: 102, 3: 219, 4: 100, 5: 91, 6: 200, 7: 91} # Profit 
+p_bar = {1: 156, 2: 102, 3: 219, 4: 100, 5: 91, 6: 200, 7: 91}  # Profit
 q = {i: 0 for i in V_0}
 for i in V_plus:
     q[i] = random.randint(1, 12)
 for i in V_minus:
     q[i] = -random.randint(1, 12)
-    
-p = {i: v*q[i] for i, v in p_bar.items()}
+
+p = {i: v * q[i] for i, v in p_bar.items()}
 
 F = 400  # Fixed cost per vehicle
 
@@ -140,12 +140,12 @@ M = sys.maxsize  # Big M value
 # Create a new model
 model = Model("SRLTP-extension", env=env)
 
-c_external = {
-    k: EXTERNAL_COST_PER_UNIT_PER_KM * v for k, v in distances.items()
-}
+c_external = {k: EXTERNAL_COST_PER_UNIT_PER_KM * v for k, v in distances.items()}
 
 d = {
-    (i, j): p_bar[j] - p_bar[i] - c[i, j] for (i, j) in distances.keys() if j != 0 and i != 0
+    (i, j): p_bar[j] - p_bar[i] - c[i, j]
+    for (i, j) in distances.keys()
+    if j != 0 and i != 0
 }
 
 # Decision variables
@@ -163,7 +163,9 @@ t = model.addVars(
     V_0, V_0, vtype=GRB.BINARY, name="t"
 )  # Time spent between nodes i and j
 
-xi = model.addVars(V_0, V_0, vtype=GRB.CONTINUOUS, name="xi")  # Portion of quantity to pickup/deliver at node i with external shipper
+xi = model.addVars(
+    V_0, V_0, vtype=GRB.CONTINUOUS, name="xi"
+)  # Portion of quantity to pickup/deliver at node i with external shipper
 
 # Objective function (18)
 model.setObjective(
@@ -219,14 +221,14 @@ model.addConstr(
 
 # External shipping units (28)
 model.addConstrs(
-    (quicksum(xi[i, j] for j in V_minus) <= q[i]*(1-y[i]) for i in V_plus),
-    name="external_shipping_cost_minus"
+    (quicksum(xi[i, j] for j in V_minus) <= q[i] * (1 - y[i]) for i in V_plus),
+    name="external_shipping_cost_minus",
 )
 
 # (29)
 model.addConstrs(
-    (quicksum(xi[i, j] for i in V_plus) <= q[j]*(1-y[j]) for j in V_minus),
-    name="external_shipping_cost_plus"
+    (quicksum(xi[i, j] for i in V_plus) <= q[j] * (1 - y[j]) for j in V_minus),
+    name="external_shipping_cost_plus",
 )
 
 # Binary variables (30)
@@ -237,7 +239,10 @@ model.addConstrs((s[i] >= 0 for i in V_0), name="non_negative_start_times")
 
 
 # Non-negative external shipping cost quantities (31)
-model.addConstrs((xi[i, j] >= 0 for i in V_0 for j in V_0), name="non_negative_external_shipping_cost")
+model.addConstrs(
+    (xi[i, j] >= 0 for i in V_0 for j in V_0),
+    name="non_negative_external_shipping_cost",
+)
 
 # Delivery and pickup quantities (32)
 model.addConstrs((0 <= y[i] for i in V), name="pickup_delivery_quantities")
