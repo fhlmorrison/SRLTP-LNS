@@ -152,18 +152,26 @@ c = {
     (7, 6): 28.89,
     (7, 7): 0,
 }
-p_bar = {1: 156, 2: 102, 3: 219, 4: 100, 5: 91, 6: 200, 7: 91}  # Profit
+# p = {1: 156, 2: 102, 3: 219, 4: 100, 5: 91, 6: 200, 7: 91}
+p_bar = {1: 40, 2: 440, 3: 440, 4: 440, 5: 40, 6: 40, 7: 440}
 q = {i: 0 for i in V_0}
 for i in V_plus:
-    q[i] = random.randint(1, 12)
+    q[i] = -random.randint(1, 20)
 for i in V_minus:
-    q[i] = -random.randint(1, 12)
+    q[i] = random.randint(1, 20)
 
-p = {i: v * -q[i] for i, v in p_bar.items()}
+print(q)
+
+p = {i: v * q[i] for i, v in p_bar.items()}
+
+# Time between nodes i and j is 10 minutes for loading plus the time to travel the distance at 60km/h
+t = {
+    (i, j): 10 + c[i, j] / 1.605 for (i, j) in c.keys()
+}
 
 F = 400  # Fixed cost per vehicle
 
-M = sys.maxsize  # Big M value
+M = 2_000_000
 
 # Create a new model
 model = Model("SRLTP-extension", env=env)
@@ -187,9 +195,6 @@ Q = model.addVars(
     V_0, vtype=GRB.CONTINUOUS, name="Q"
 )  # Load of vehicle when leaving node i
 s = model.addVars(V_0, vtype=GRB.CONTINUOUS, name="s")  # Time when leaving node i
-t = model.addVars(
-    V_0, V_0, vtype=GRB.BINARY, name="t"
-)  # Time spent between nodes i and j
 
 xi = model.addVars(
     V_0, V_0, vtype=GRB.CONTINUOUS, name="xi"
@@ -230,7 +235,9 @@ model.addConstrs((y[i] <= M * z[i] for i in V), name="quantity_shipped")
 model.addConstrs(s[i] + t[i, j] <= s[j] + M * (1 - x[i, j]) for i in V_0 for j in V)
 
 # Sequence feasibility (24)
-model.addConstrs((Q[j] <= Q[i] for i in V for j in V_0), name="sequence_feasibility")
+# Q[j] is equal to Q[i] plus the quantity picked up or delivered at node j
+model.addConstrs(
+    (Q[j] <= Q[i] + q[j] * y[j] + M * (1- x[i, j]) for i in V for j in V_0),name="sequence_feasibility")
 model.addConstrs(
     (Q[i] + q[j] * y[j] <= Q[j] + M * (1 - x[i, j]) for i in V for j in V_0),
     name="sequence_feasibility",
@@ -240,7 +247,7 @@ model.addConstrs(
 model.addConstr(Q[0] == 0, name="initial_load")
 
 # Vehicle capacity (26)
-model.addConstrs((Q[i] <= 0 for i in V_0), name="vehicle_capacity_max")
+model.addConstrs((Q[i] <= Q_max for i in V_0), name="vehicle_capacity_max")
 model.addConstrs((Q[i] >= 0 for i in V_0), name="vehicle_capacity_min")
 
 # Time limit (27)
@@ -291,8 +298,7 @@ model.optimize()
 if model.status == GRB.OPTIMAL:
     print("Optimal objective value:", model.ObjVal)
     for v in model.getVars():
-        print(f"{v.varName}: {v.x}")
-        # if v.x != 0:
-        #     print(f"{v.varName}: {v.x}")
+        if v.x != 0:
+            print(f"{v.varName}: {v.x}")
 else:
     print("No optimal solution found.")
