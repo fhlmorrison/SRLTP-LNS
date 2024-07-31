@@ -2,8 +2,8 @@ from gurobipy import Model, GRB, quicksum
 import sys
 import random
 import numpy as np
-
-from dotenv import load_dotenv
+import os
+from dotenv import load_dotenv, Env
 
 load_dotenv()
 
